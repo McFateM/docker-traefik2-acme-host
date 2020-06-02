@@ -1,0 +1,146 @@
+## docker-compose.yml for launch of Traefik, Watchtower and Portainer, plus WhoAmI added from "dockerized-server"
+## This is largely from /opt/docker-compose.yml on my summitt-dweller-DO-docker droplet
+
+## Attention! To launch these services in support of other apps, be sure you modify the .env file and...
+##   docker network create web
+##   cd /opt/docker-traefik2-host; git checkout master
+##   docker-compose up -d
+
+## Also note that this scheme dispatches notification emails to ${NOTIFICATION_EMAIL_ADDRESS}
+
+##-- Notes ---------------------------------------------------------------------
+## 29-Apr-2020  Attempting shift to Traefik v2.2 w/ existing ACME HTTP-01 challenge on static.grinnell.edu
+## 21-Feb-2020  Moving `nonsecuresmtp` email address in `.env` to `Mx0b-001c8a01.pphosted.com` as directed in
+##   https://help.grinnell.edu/nav_to.do?uri=incident.do?sys_id=74c033c01bb68c1060f47449cc4bcb3c%26sysparm_view=ess
+## 30-Jan-2020  Recent changes make the host's ./data directory obsolete, so it is being removed now.
+## 29-Jan-2020  Making viable for static.grinnell.edu with additon of .env variables
+## 18-Jan-2020  Switching from v2tec/watchtower to containrrr/watchtower
+## 16-Jan-2020  Added WhoAmI service from the "dockerized-server" project and preparing summitt-dweller-DO-docker
+##   to host more apps, specifically a staging instance of the Omeka-S v2.x stack from GC.
+## 17-Sep-2019  Applying same fix as documented in
+##   https://static.grinnell.edu/blogs/McFateM/posts/045-repairing-static.grinnell.edu/
+## 02-May-2019  Restored Portainer's .env variables.
+## 24-Apr-2019  Still working to make Traefik dashboard visible
+## 24-Apr-2019  Adding more .env vars for Traefik and Portainer control
+## 23-Apr-2019  Added Acme staging CA server spec.  Remove for production!
+## 23-Apr-2019  Added portainer service
+## 17-Apr-2019  --entrypoints="Name:https Address::443 TLS" line replaced with
+##   new line in proxy:command to remove weak ciphers in Traefik.
+##------------------------------------------------------------------------------
+
+## Use ONE of the following --acme.caserver... lines in the proxy (Traefix) config:
+##  For testing and development...
+##      --acme.caserver="https://acme-staging-v02.api.letsencrypt.org/directory" \
+##  For production...
+##      --acme.caserver="https://acme-v02.api.letsencrypt.org/directory" \
+
+
+version: '3.2'
+
+services:
+
+  proxy:
+    container_name: traefik_proxy
+    # image: traefik:v1.7-alpine
+    image: traefik:latest
+    command: >-
+      --docker --logLevel=INFO \
+      --acme \
+      --acme.caserver="https://acme-staging-v02.api.letsencrypt.org/directory" \
+      --acme.acmelogging \
+      --acme.dnschallenge=false \
+      --acme.entrypoint="https" \
+      --acme.httpchallenge \
+      --acme.httpChallenge.entryPoint="http" \
+      --acme.onhostrule=true \
+      --acme.storage="/root/acme.json" \
+      --acme.email="${NOTIFICATION_EMAIL_ADDRESS}" \
+      --entrypoints="Name:http Address::80 Redirect.EntryPoint:https" \
+      --entryPoints="Name:https Address::443 TLS TLS.MinVersion:VersionTLS12 TLS.CipherSuites:TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256" \
+      --defaultentrypoints="http,https" \
+      --api \
+      --api.dashboard=true
+
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.auth.basic.users: "admin:$$2y$$05$$pJEzHJBzfoYYS7/hGAedcOP8XdsqNXE7j.LHFBVjueASOqOvvjGOy"
+      traefik.http.routers.router0.redirect.regex: "^(.*)/traefik$$"
+      traefik.http.routers.router0.redirect.replacement: "$$1/traefik/"
+      traefik.http.routers.router0.middlewares: "auth"
+      traefik.http.routers.router0.rule: PathPrefix('/traefik') && ReplacePathRegex('^/traefik/(.*) /$$1')
+      traefik.port: 8080
+
+    networks:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+      - /root/acme.json:/root/acme.json
+
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    command: --cleanup --label-enable
+    labels:
+      - traefik.enable=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_NOTIFICATIONS: "email"
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_TLS_SKIP_VERIFY: ${NOTIFICATION_SMTP_SKIP_TLS}
+      WATCHTOWER_NOTIFICATION_EMAIL_FROM: "${NOTIFICATION_FROM_ADDRESS}"
+      WATCHTOWER_NOTIFICATION_EMAIL_TO: "${NOTIFICATION_EMAIL_ADDRESS}"
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER: "${NOTIFICATION_SMTP_SERVER}"
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: "${NOTIFICATION_SMTP_USER}"
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD: "${NOTIFICATION_SMTP_PASSWORD}"
+      WATCHTOWER_NOTIFICATION_EMAIL_DELAY: 2
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer
+    command: --admin-password "$$2y$$05$$pJEzHJBzfoYYS7/hGAedcOP8XdsqNXE7j.LHFBVjueASOqOvvjGOy" -H unix:///var/run/docker.sock
+    networks:
+      - web
+    ports:
+      - "9000:9000"
+      #- "9010:9000" ## Remap to avoid conflicts on systems/servers with portainer already running.
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+
+    ## traefik.frontend.... bits per
+    ##   https://github.com/pascalandy/docker-stack-this/blob/master/traefik_stack5/toolportainer.yml#L55
+    labels:
+      traefik.port: 9000
+      traefik.enable: true
+      traefik.http.routers.router0.redirect.regex: "^(.*)/portainer$$"
+      traefik.http.routers.router0.redirect.replacement: "$$1/portainer/"
+      traefik.http.routers.router0.rule: PathPrefix('/portainer') && ReplacePathRegex('^/portainer/(.*) /$$1')
+
+  # whoami:
+  #   container_name: whoami
+  #   image: emilevauge/whoami
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.frontend.rule=PathPrefixStrip:/whoami"
+  #     - "traefik.frontend.redirect.regex=^(.*)/whoami$$"
+  #     - "traefik.frontend.redirect.replacement=$$1/whoami/"
+  #     - "traefik.frontend.rule=PathPrefix:/whoami;ReplacePathRegex: ^/whoami/(.*) /$$1"
+  #     - "traefik.frontend.passHostHeader=true"
+  #     - "traefik.frontend.headers.SSLRedirect=true"
+  #   networks:
+  #     - web
+
+networks:
+  web:
+    external: true
+  internal:
+    external: false
+
+volumes:
+  portainer-data:

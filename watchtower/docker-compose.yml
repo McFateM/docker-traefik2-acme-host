@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    restart: unless-stopped
+    command: --cleanup --label-enable
+    labels:
+      - "traefik.enable=false"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_NOTIFICATIONS: "email"
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_TLS_SKIP_VERIFY: ${NOTIFICATION_SMTP_SKIP_TLS}
+      WATCHTOWER_NOTIFICATION_EMAIL_FROM: "${NOTIFICATION_FROM_ADDRESS}"
+      WATCHTOWER_NOTIFICATION_EMAIL_TO: "${NOTIFICATION_EMAIL_ADDRESS}"
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER: "${NOTIFICATION_SMTP_SERVER}"
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: "${NOTIFICATION_SMTP_USER}"
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD: "${NOTIFICATION_SMTP_PASSWORD}"
+      WATCHTOWER_NOTIFICATION_EMAIL_DELAY: 2
+
+# networks:
+#   proxy:
+#     external: true
