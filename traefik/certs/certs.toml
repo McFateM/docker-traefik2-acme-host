@@ -1,0 +1,3 @@
+[[tls.certificates]]
+    certFile = “/certs/dgdocker3.grinnell.edu.cert”
+    keyFile = “/certs/dgdocker3.grinnell.edu.key”
