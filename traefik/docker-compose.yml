@@ -36,8 +36,7 @@ services:
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
-      - ./certs/:/certs/
+      - ./certs:/certs
 
   whoami:
     image: containous/whoami
