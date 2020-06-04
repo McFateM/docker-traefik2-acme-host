@@ -1,24 +1,13 @@
 version: "3.3"
 
 services:
-
-  acme:
-    image: neilpang/acme.sh:latest
-    volumes:
-      - ./certs:/certs
-    environment:
-      # Azure
-      AZUREDNS_SUBSCRIPTIONID: ${AZURE_SUBSCRIPTION_ID}
-      AZUREDNS_TENANTID: ${AZURE_TENANT_ID}
-      AZUREDNS_APPID: ${AZURE_CLIENT_ID}
-      AZUREDNS_CLIENTSECRET: ${AZURE_CLIENT_SECRET}
-
-    command: daemon
-    container_name: acme
-
   traefik:
-    image: "traefik:v2.2.1"
-    container_name: "traefik"
+    image: traefik:2.2.1
+    container_name: traefik
+    hostname: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     command:
       --log.level=DEBUG
       --api.insecure=true
@@ -28,78 +17,32 @@ services:
       --providers.file.watch=true
       --entrypoints.web.address=:80
       --entrypoints.websecure.address=:443
-
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      # next 4 lines...universal http --> https redirect per https://community.containo.us/t/a-global-http-https-redirection/864/3
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:[a-z-.]+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=websecure"
+      # now the Traefik-specific dashboard stuff
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$pJEzHJBzfoYYS7/hGAedcOP8XdsqNXE7j.LHFBVjueASOqOvvjGOy"
+      - "traefik.http.routers.traefik-secure.entrypoints=websecure"
+      - "traefik.http.routers.traefik-secure.rule=Host(`static.grinnell.edu`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      #- "traefik.http.routers.traefik-secure.tls.certresolver=http"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
     ports:
       - 80:80
       - 443:443
       - 8080:8080
-
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./certs:/certs
+      - ../certs:/certs
 
-  whoami:
-    image: containous/whoami
-    container_name: simple-service
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.whoami.rule: "Host(`dgdocker3.grinnell.edu`)"
-      # traefik.http.routers.whoami.rule: "Host(`dgdocker3.grinnell.edu`) && PathPrefix(`/whoami`)"
-      # traefik.http.routers.whoami.middlewares: "whoami-stripprefix"
-      # traefik.http.routers.whoami.service: "whoami"
-      # traefik.http.middlewares.whoami-stripprefix.stripprefix.prefixes: "/whoami"
-      traefik.http.routers.whoami.entrypoints: "websecure"
-      traefik.http.routers.whoami.tls: "true"
-
-# version: '3'
-#
-# services:
-#   traefik:
-#     image: traefik:2.2.1
-#     container_name: traefik
-#     hostname: traefik
-#     restart: unless-stopped
-#     security_opt:
-#       - no-new-privileges:true
-#     networks:
-#       - proxy
-#     ports:
-#       - 80:80
-#       - 443:443
-#     volumes:
-#       - /etc/localtime:/etc/localtime:ro
-#       - /var/run/docker.sock:/var/run/docker.sock:ro
-#       - ./data/traefik.yml:/traefik.yml:ro
-#       - ./data/acme.json:/acme.json
-#     labels:
-#       - "traefik.enable=true"
-#       # next 4 lines...universal http --> https redirect per https://community.containo.us/t/a-global-http-https-redirection/864/3
-#       - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:[a-z-.]+}`)"
-#       - "traefik.http.routers.http-catchall.entrypoints=http"
-#       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-#       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-#       # now the Traefik-specific dashboard stuff
-#       - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$pJEzHJBzfoYYS7/hGAedcOP8XdsqNXE7j.LHFBVjueASOqOvvjGOy"
-#       - "traefik.http.routers.traefik-secure.entrypoints=https"
-#       - "traefik.http.routers.traefik-secure.rule=Host(`dgdocker3.grinnell.edu`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
-#       - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
-#       - "traefik.http.routers.traefik-secure.tls=true"
-#       - "traefik.http.routers.traefik-secure.tls.certresolver=http"
-#       - "traefik.http.routers.traefik-secure.service=api@internal"
-#
-# networks:
-#   proxy:
-#     external: true
-#
-# # For when Azure and DNS-01 become a thing
-# #     - "traefik.http.routers.traefik.tls.certresolver=myresolver"
-# #     # - "traefik.http.services.traefik.loadbalancer.server.port=8080"
-# #
-# #     environment:
-# #       AZURE_CLIENT_ID: "${AZURE_CLIENT_ID}"
-# #       AZURE_CLIENT_SECRET: "${AZURE_CLIENT_SECRET}"
-# #       AZURE_SUBSCRIPTION_ID: "${AZURE_SUBSCRIPTION_ID}"
-# #       AZURE_TENANT_ID: "${AZURE_TENANT_ID}"
-# #       AZURE_DNS_ZONE: "${AZURE_DNS_ZONE}"
-# #       AZURE_RESOURCE_GROUP: "${AZURE_RESOURCE_GROUP}"
-# #
+networks:
+  proxy:
+    external: true

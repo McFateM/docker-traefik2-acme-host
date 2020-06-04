@@ -1,0 +1,14 @@
+version: "3.3"
+
+services:
+  whoami:
+    image: containous/whoami
+    container_name: whoami
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.whoami.rule: "Host(`static.grinnell.edu`) && PathPrefix(`/whoami`)"
+      traefik.http.routers.whoami.middlewares: "whoami-stripprefix"
+      traefik.http.routers.whoami.service: "whoami"
+      traefik.http.middlewares.whoami-stripprefix.stripprefix.prefixes: "/whoami"
+      traefik.http.routers.whoami.entrypoints: "websecure"
+      traefik.http.routers.whoami.tls: "true"

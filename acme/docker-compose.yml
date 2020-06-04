@@ -1,0 +1,22 @@
+version: "3.3"
+
+networks:
+  proxy:
+    external:
+      name: proxy
+
+services:
+  acme:
+    image: neilpang/acme.sh:latest
+    volumes:
+      - ../certs:/certs
+    restart: unless-stopped
+    environment:
+      AZUREDNS_SUBSCRIPTIONID: ${AZURE_SUBSCRIPTION_ID}
+      AZUREDNS_TENANTID: ${AZURE_TENANT_ID}
+      AZUREDNS_APPID: ${AZURE_CLIENT_ID}
+      AZUREDNS_CLIENTSECRET: ${AZURE_CLIENT_SECRET}
+    command: ${ACME_COMMAND}
+    container_name: acme
+    networks:
+      - proxy
