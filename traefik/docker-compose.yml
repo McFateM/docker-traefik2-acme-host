@@ -20,11 +20,11 @@ services:
     image: "traefik:v2.2.1"
     container_name: "traefik"
     command:
-      # --log.level=DEBUG
+      --log.level=DEBUG
       --api.insecure=true
       --providers.docker=true
       --providers.docker.exposedbydefault=false
-      --providers.file.directory=/certs/
+      --providers.file.directory=/certs
       --providers.file.watch=true
       --entrypoints.web.address=:80
       --entrypoints.websecure.address=:443
