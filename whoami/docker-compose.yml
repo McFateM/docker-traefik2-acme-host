@@ -6,7 +6,7 @@ services:
     container_name: whoami
     labels:
       traefik.enable: "true"
-      traefik.http.routers.whoami.rule: "Host(`static.grinnell.edu`) && PathPrefix(`/whoami`)"
+      traefik.http.routers.whoami.rule: "Host(`${HOST}`) && PathPrefix(`/whoami`)"
       traefik.http.routers.whoami.middlewares: "whoami-stripprefix"
       traefik.http.routers.whoami.service: "whoami"
       traefik.http.middlewares.whoami-stripprefix.stripprefix.prefixes: "/whoami"
