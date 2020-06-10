@@ -1,2 +1,6 @@
 .env
-acme.json
+certs/*.cert
+certs/*.key
+landing/
+vaf/
+rootstalk/
