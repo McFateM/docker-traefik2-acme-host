@@ -49,9 +49,9 @@ A server, host, or application stack running only the aforementioned elements is
 
 If the service utilizes "path" addressing, such that it's URL ends with a `/some-path/`, like `https://static.grinnell.edu/whoami/`, then be sure you keep all of the "labels" found in `docker-compose.yml`. In such an instance it's unlikely that you need to add anything else since you probably do not need to modify the `./certs/certs.toml` file.
 
-If your service has a subdomain of its own, like `https://rootstalk.grinnell.edu`, then you can remove some of the "labels" for 'middleware' from `docker-compose.yml`, and keep just a simple "Host" label. However, you'll need to edit the service's fully qualified domain name (FQDN) into the `./certs/certs.toml` file and it will have to appear in portions of the `docker exec...` command that you'll want to included in your `README.md` file.
+If your service has a subdomain of its own, like `https://rootstalk.grinnell.edu`, then you can remove some of the "labels" for 'middleware' from `docker-compose.yml`, and keep just a simple "Host" label. However, you'll need to edit the service's fully qualified domain name (FQDN) into the `./certs/certs.toml` file and it will have to appear in portions of the `docker exec...` command that you'll want to include in your `README.md` file.
 
-If you're struggling with the details of either scenario, send an email to [digital@grinnell.edu](mailto:digital.grinnell.edu) and ask for guidance.
+If you're struggling with the details of either scenario, send an email to [digital@grinnell.edu](mailto:digital.grinnell.edu) and ask for guidance or a working example.
 
 ## Maintenance
 
