@@ -47,9 +47,17 @@ This project is intended to serve as a template for creation and maintenance of 
 
 A server, host, or application stack running only the aforementioned elements is pretty mundane, so presumably there are more services destined for your host.  Each new service will require its own sub-directory beneath `~/host` with a `docker-compose.yml` file at a minimum.  That file can be initially patterned after `~/host/whoami/docker-compose.yml` since it contains most of the constructs that you are likely to need.  You should also create a `README.md` file and be sure to include elements like those found at the top of `~/host/whoami/README.md`.
 
+Services typically either have a subdomain of their own, like [https://rootstalk.grinnell.edu](https://rootstalk.grinnell.edu), or they use "path" addressing off of the server's root subdomain, like [https://static.grinnell.edu/whoami/](https://static.grinnell.edu/whoami/).
+
+### Path Addressing
+
 If the service utilizes "path" addressing, such that it's URL ends with a `/some-path/`, like `https://static.grinnell.edu/whoami/`, then be sure you keep all of the "labels" found in `docker-compose.yml`. In such an instance it's unlikely that you need to add anything else since you probably do not need to modify the `./certs/certs.toml` file.
 
+### Subdomain Addressing
+
 If your service has a subdomain of its own, like `https://rootstalk.grinnell.edu`, then you can remove some of the "labels" for 'middleware' from `docker-compose.yml`, and keep just a simple "Host" label. However, you'll need to edit the service's fully qualified domain name (FQDN) into the `./certs/certs.toml` file and it will have to appear in portions of the `docker exec...` command that you'll want to include in your `README.md` file.
+
+### Need More Info?
 
 If you're struggling with the details of either scenario, send an email to [digital@grinnell.edu](mailto:digital.grinnell.edu) and ask for guidance or a working example.
 
