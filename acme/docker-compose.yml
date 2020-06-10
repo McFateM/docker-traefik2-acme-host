@@ -16,7 +16,7 @@ services:
       AZUREDNS_TENANTID: ${AZURE_TENANT_ID}
       AZUREDNS_APPID: ${AZURE_CLIENT_ID}
       AZUREDNS_CLIENTSECRET: ${AZURE_CLIENT_SECRET}
-    command: daemon
+    command: daemon && ${ACME_COMMAND}
     container_name: acme
     networks:
       - proxy

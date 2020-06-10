@@ -1,17 +1,17 @@
 #!/bin/bash
 #
 docker network create proxy
-cd /opt/docker-traefik2-acme-host/acme
+cd ~/host/docker-traefik2-acme-host/acme
 docker-compose up -d; docker-compose logs
-docker exec -it acme --issue --dns dns_azure --server https://acme-staging-v02.api.letsencrypt.org/directory -d dgdocker3.grinnell.edu --domain-alias _acme-challenge.leverify.info --key-file /certs/dgdocker3.grinnell.edu.key --cert-file /certs/dgdocker3.grinnell.edu.cert --standalone --force
-#
-## Terminate prematurely during testing.
-return
+# docker exec -it acme --issue --dns dns_azure --server https://acme-staging-v02.api.letsencrypt.org/directory -d dgdocker3.grinnell.edu --domain-alias _acme-challenge.leverify.info --key-file /certs/dgdocker3.grinnell.edu.key --cert-file /certs/dgdocker3.grinnell.edu.cert --standalone --force
 #
 cd ../traefik
 docker-compose up -d; docker-compose logs
 cd ../whoami
 docker-compose up -d; docker-compose logs
+#
+## Terminate prematurely during testing.
+return
 #
 #cd ../watchtower
 #docker-compose up -d; docker-compose logs
