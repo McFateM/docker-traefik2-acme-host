@@ -15,25 +15,27 @@ services:
       --providers.docker.exposedbydefault=false
       --providers.file.directory=/certs
       --providers.file.watch=true
+      --providers.file.filename=/traefik-tls.toml
       --entrypoints.web.address=:80
       --entrypoints.websecure.address=:443
     networks:
       - proxy
     labels:
-      - "traefik.enable=true"
+      traefik.enable: true
       # next 4 lines...universal http --> https redirect per https://community.containo.us/t/a-global-http-https-redirection/864/3
-      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:[a-z-.]+}`)"
-      - "traefik.http.routers.http-catchall.entrypoints=web"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=websecure"
+      traefik.http.routers.http-catchall.rule: hostregexp(`{host:[a-z-.]+}`)
+      traefik.http.routers.http-catchall.entrypoints: web
+      traefik.http.routers.http-catchall.middlewares: redirect-to-https
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: websecure
       # now the Traefik-specific dashboard stuff
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$pJEzHJBzfoYYS7/hGAedcOP8XdsqNXE7j.LHFBVjueASOqOvvjGOy"
-      - "traefik.http.routers.traefik-secure.entrypoints=websecure"
-      - "traefik.http.routers.traefik-secure.rule=Host(`${HOST}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
-      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
-      - "traefik.http.routers.traefik-secure.tls=true"
+      traefik.http.middlewares.traefik-auth.basicauth.users: admin:$$2y$$05$$pJEzHJBzfoYYS7/hGAedcOP8XdsqNXE7j.LHFBVjueASOqOvvjGOy
+      traefik.http.routers.traefik-secure.entrypoints: websecure
+      traefik.http.routers.traefik-secure.rule: Host(`${HOST}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+      traefik.http.routers.traefik-secure.middlewares: traefik-auth
+      traefik.http.routers.traefik-secure.tls: true
       #- "traefik.http.routers.traefik-secure.tls.certresolver=http"
-      - "traefik.http.routers.traefik-secure.service=api@internal"
+      traefik.http.routers.traefik-secure.service: api@internal
+      traefik.http.routers.traefik-secure.tls.options: default
     ports:
       - 80:80
       - 443:443
