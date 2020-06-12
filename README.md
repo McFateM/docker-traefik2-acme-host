@@ -1,6 +1,76 @@
-# docker-traefik2-host
+# docker-traefik2-acme-host
 
-Generalized Docker server modified to use Traefik v2.2 based on guidance in [Traefik 2.0 + Docker -- a Simple Step by Step Guide](https://medium.com/@containeroo/traefik-2-0-docker-a-simple-step-by-step-guide-e0be0c17cfa5). Original concept as documented in [My dockerized-server Config](https://dlad.summittdweller.com/en/posts/042-my-dockerized-server-config/).
+Generalized Docker server stack modified to use Traefik v2.2 based on guidance in [Traefik 2.0 + Docker -- a Simple Step by Step Guide](https://medium.com/@containeroo/traefik-2-0-docker-a-simple-step-by-step-guide-e0be0c17cfa5). This project is culmination of several that came before it. Those earlier projects are documented, in chronological order, within the following posts:
+
+  - [My dockerized-server Config](https://dlad.summittdweller.com/en/posts/042-my-dockerized-server-config/)
+  - [Dockerized Traefik Host Using ACME DNS-01 Challenge](https://dlad.summittdweller.com/en/posts/071-dockerized-traefik-using-acme-dns-01/)
+  - [Simplified Testing of Traefik 2 with ACME DNS-01 Challenge](https://dlad.summittdweller.com/en/posts/074-simplified-testing-traefik-2-with-acme-dns-01/)
+  - [Traefik and Acme.sh Instead of DNS-01](https://dlad.summittdweller.com/en/posts/079-traefik-and-acme.sh-instead-of-dns-01/)
+
+Significant portions of this `README.md` file can be found in the capstone to this work, [Host Config: docker-traefik2-acme-host](https://dlad.summittdweller.com/en/posts/080-host-config-docker-traefik2-acme-host/).
+
+## Stack Contents
+
+This project stack includes the following elements/services:
+
+  - **acme** - A configured version of the [neilpang/acme.sh](https://hub.docker.com/r/neilpang/acme.sh) image to obtain and manage the stack's TLS certificates.
+  - **traefik** - A Traefik v2 reverse proxy to manage addressing and web traffic. Available at: `https://[host]/dashboard/`
+  - **portainer** - A Portainer instance to provide Docker resource management for this host. Available at: `https://[host]/portainer/`
+  - **watchtower** - A WatchTower instance to provide automatic updates of containers from images registered in this stack as they are pushed to DockerHub.
+  - **whoami** - A simple WhoAmI instance provided as a sample for typical deployment. Available at: `https://[host]/whoami/`
+
+## Initial Use
+
+This project is intended to serve as a template for creation and maintenance of an application stack on a Dockerized server or host.  Follow these steps to deploy the project and create a new stack on any Linux (presumably Ubuntu or CentOS) server/host:
+
+  - Open a terminal on the Linux server.
+  - Set 'home' as your working directory.
+    - `cd ~`
+    - Note that instead of using your 'home' directory, you could choose `/opt` since that is where application stacks commonly exist in Linux. However, doing so will require that most of the following commands will have to be run with `sudo` or as `root`.
+  - Clone this project to create a new `host` sub-directory in your working directory.
+    - `git clone https://github.com/McFateM/docker-traefik2-acme-host host`
+    - `cd host`
+  - Visit the `certs` directory and review/edit the `certs.toml` file as necessary.
+    - `cd certs`
+    - `nano certs.toml`
+  - Begin with `acme` and study any `README.md` or server-specific `.md` files there, like `STATIC.md` or `DGDOCKER3.md`.
+    - `cd ../acme`
+    - `mdv README.md` # If `mdv` is not available use `cat` and substitute in the server-specifc name as necessary.
+    - Edit files as directed and perform the prescibed command(s).
+  - Repeat the above process in each of the remaining directories, preferably in this order:
+    - **traefik** - `cd ../traefik`
+    - **watchtower** - `cd ../watchtower`
+    - **portainer** - `cd ../portainer`
+    - **whoami** - `cd ../whoami`
+
+## Additional Services
+
+A server, host, or application stack running only the aforementioned elements is pretty mundane, so presumably there are more services destined for your host.  Each new service will require its own sub-directory beneath `~/host` with a `docker-compose.yml` file at a minimum.  That file can be initially patterned after `~/host/whoami/docker-compose.yml` since it contains most of the constructs that you are likely to need.  You should also create a `README.md` file and be sure to include elements like those found at the top of `~/host/whoami/README.md`.
+
+Services typically either have a subdomain of their own, like [https://rootstalk.grinnell.edu](https://rootstalk.grinnell.edu), or they use "path" addressing off of the server's root subdomain, like [https://static.grinnell.edu/whoami/](https://static.grinnell.edu/whoami/).
+
+### Path Addressing
+
+If the service utilizes "path" addressing, such that it's URL ends with a `/some-path/`, like `https://static.grinnell.edu/whoami/`, then be sure you keep all of the "labels" found in `docker-compose.yml`. In such an instance it's unlikely that you need to add anything else since you probably do not need to modify the `./certs/certs.toml` file.
+
+### Subdomain Addressing
+
+If your service has a subdomain of its own, like `https://rootstalk.grinnell.edu`, then you can remove some of the "labels" for 'middleware' from `docker-compose.yml`, and keep just a simple "Host" label. However, you'll need to edit the service's fully qualified domain name (FQDN) into the `./certs/certs.toml` file and it will have to appear in portions of the `docker exec...` command that you'll want to include in your `README.md` file.
+
+### Need More Info?
+
+If you're struggling with the details of either scenario, send an email to [digital@grinnell.edu](mailto:digital.grinnell.edu) and ask for guidance or a working example.
+
+## Maintenance
+
+Once you have your application stack up-and-running, routine maintenance should be pretty straightforward. All that generally required is that you make changes to a service and push the changes to _DockerHub_.  Watchtower is typically engaged to monitor changes in each service's corresponding _DockerHub_ repo and it will update containers in the stack with new images as they are posted.
+
+If a service has to be modified and/or restarted otherwise, usually all that's necessary is to pull the changes into the appropriate service sub-directory, and issue a `docker-compose up -d` command there.  The new service image should be pulled in and deployed as a service container as a result.
+
+## History
+
+Much of what follows is **OBSOLETE**. It was lifted from some of this project's predecessor `README.md` files without modification in order to preserve some of the early history of this work.
+
 
 At last check, 27-Apr-2020, the previous version of this project was used on:
 
@@ -23,7 +93,11 @@ As of 30-Apr-2020 the dashboards for GC's `static.grinnell.edu` server are:
 
 The aforementioned guide, [Traefik 2.0 + Docker -- a Simple Step by Step Guide](https://medium.com/@containeroo/traefik-2-0-docker-a-simple-step-by-step-guide-e0be0c17cfa5), builds an environment destined to live in `/opt/containers`, and this project does the same.
 
-## To Initialize the Host
+## EVERYTHING Below This Point is OBSOLETE
+
+> As of 10-June-2020... Do NOT use the following!
+
+### To Initialize the Host
 
 The project and _Traefik_ were initiated on `static.grinnell.edu` like so:
 
@@ -39,7 +113,7 @@ cd /opt/containers/traefik
 docker-compose up -d
 ```
 
-## Adding Portainer
+### Adding Portainer
 
 Lkewise on `static.grinnell.edu`:
 
@@ -51,7 +125,7 @@ docker-compose up -d
 
 Note that successful configuration of the `https://static.grinnell.edu/portainer` address was gleaned from the post: [Proxy Portainer under sub path](https://community.containo.us/t/proxy-portainer-under-sub-path/3601).
 
-##  Launching Application Stacks On static.grinnell.edu
+###  Launching Application Stacks On static.grinnell.edu
 
 @TODO: Modify the following for Traefik v2
 
@@ -92,5 +166,3 @@ docker container run -d --name vaf-kiosk \
     --restart always \
   mcfatem/vaf-kiosk
 ```
-
-## Attempting To Use Traefik v2
