@@ -10,13 +10,11 @@ This document should be used to launch the `traefik` service on ANY host as part
 
 ## Preparation
 
-Before entering the prescribed "Command Sequence", below, the user should take steps to...
+Before entering the prescribed "Command Sequence", below, the user should take steps to copy any pertinent `.env` files from an existing deployment. Try something like this:
 
-  - Comment out one of the `CASERVER=` specifications.  Comment out the second one (includes 'staging') for **production**, or the first one for **testing/staging**.
+  - `rsync -aruvi administrator@static.grinnell.edu:/home/administrator/host/traefik/.env . --progress`
 
 ## Command Sequence
 
-```
-cd ~/host/traefik
-docker-compose up -d; docker-compose logs
-```
+  - cd ~/host/traefik
+  - docker-compose up -d; docker-compose logs
