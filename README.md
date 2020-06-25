@@ -35,8 +35,12 @@ This project is intended to serve as a template for creation and maintenance of 
     - `nano certs.toml`
   - Begin with `acme` and study any `README.md` or server-specific `.md` files there, like `STATIC.md` or `DGDOCKER3.md`.
     - `cd ../acme`
-    - `mdv README.md` # If `mdv` is not available use `cat` and substitute in the server-specifc name as necessary.
-    - Edit files as directed and perform the prescibed command(s).
+    - `mdv README.md` or `mdv DGDOCKER3.md`  _If `mdv` is not available use `cat` and substitute in the server-specifc name as necessary._
+  - Copy any `.env` file needed for this service.  In the case of `acme` it's probably necessary to do this:
+    - `rsync -aruvi administrator@static.grinnell.edu:/home/administrator/host/acme/.env . --progress`
+      - For services other than `acme` you will need to change the command corresponding portion of the target path.
+    - Verify that `.env` exists, open it and inspect, then change and save the contents if necessary.  
+    - Edit other files as directed and perform the prescibed command(s) found in the `README.md` or equivalent.
   - Repeat the above process in each of the remaining directories, preferably in this order:
     - **traefik** - `cd ../traefik`
     - **watchtower** - `cd ../watchtower`
