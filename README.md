@@ -20,10 +20,9 @@ This project stack includes the following elements/services:
   - **whoami** - A simple WhoAmI instance provided as a sample for typical deployment. Available at: `https://[host]/whoami/`
   - **landing-page** - In September 2020 this project landed at https://dgdockerx.grinnell.edu where a landing page was added.
 
-{{% annotation %}}
+```
 Note: As this project was pushed to https://dgdockerx.grinnell.edu I took steps to replace old `administrator@static...` references below with `islandora@dgdockerx...`.
-{{% /annotation %}}
-
+```
 ## Initial Use
 
 This project is intended to serve as a template for creation and maintenance of an application stack on a Dockerized server or host.  Follow these steps to deploy the project and create a new stack on any Linux (presumably Ubuntu or CentOS) server/host:
