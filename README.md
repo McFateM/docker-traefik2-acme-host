@@ -33,7 +33,7 @@ This project is intended to serve as a template for creation and maintenance of 
   - Visit the `certs` directory and review/edit the `certs.toml` file as necessary.
     - `cd certs`
     - `nano certs.toml`
-  - Begin with `acme` and study any `README.md` or server-specific `.md` files there, like `STATIC.md` or `DGDOCKER3.md`.
+  - Begin with `acme` and study any `README.md` or server-specific `.md` files there, like `STATIC.md` or `DGDOCKERX.md`.
     - `cd ../acme`
     - `mdv README.md` # If `mdv` is not available use `cat` and substitute in the server-specifc name as necessary.
     - Edit files as directed and perform the prescibed command(s).

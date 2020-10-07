@@ -1,19 +1,27 @@
-# [[tls.certificates]]
-#   certFile = "/certs/dgdocker3.grinnell.edu.cert"
-#   keyFile = "/certs/dgdocker3.grinnell.edu.key"
+[[tls.certificates]]
+  certFile = "/certs/dgdockerx.grinnell.edu.cert"
+  keyFile = "/certs/dgdockerx.grinnell.edu.key"
+
+[[tls.certificates]]
+  certFile = "/certs/dg-staging.grinnell.edu.cert"
+  keyFile = "/certs/dg-staging.grinnell.edu.key"
 #
-[[tls.certificates]]
-  certFile = "/certs/static.grinnell.edu.cert"
-  keyFile = "/certs/static.grinnell.edu.key"
-
-[[tls.certificates]]
-  certFile = "/certs/rootstalk.grinnell.edu.cert"
-  keyFile = "/certs/rootstalk.grinnell.edu.key"
-
-[[tls.certificates]]
-  certFile = "/certs/vaf.grinnell.edu.cert"
-  keyFile = "/certs/vaf.grinnell.edu.key"
-
-[[tls.certificates]]
-  certFile = "/certs/vaf-kiosk.grinnell.edu.cert"
-  keyFile = "/certs/vaf-kiosk.grinnell.edu.key"
+# [[tls.certificates]]
+#   certFile = "/certs/dgdockerx.grinnell.edu.cert"
+#   keyFile = "/certs/dgdockerx.grinnell.edu.key"
+#
+# [[tls.certificates]]
+#   certFile = "/certs/static.grinnell.edu.cert"
+#   keyFile = "/certs/static.grinnell.edu.key"
+#
+# [[tls.certificates]]
+#   certFile = "/certs/rootstalk.grinnell.edu.cert"
+#   keyFile = "/certs/rootstalk.grinnell.edu.key"
+#
+# [[tls.certificates]]
+#   certFile = "/certs/vaf.grinnell.edu.cert"
+#   keyFile = "/certs/vaf.grinnell.edu.key"
+#
+# [[tls.certificates]]
+#   certFile = "/certs/vaf-kiosk.grinnell.edu.cert"
+#   keyFile = "/certs/vaf-kiosk.grinnell.edu.key"
