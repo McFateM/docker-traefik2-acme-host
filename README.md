@@ -2,12 +2,12 @@
 
 Generalized Docker server stack modified to use Traefik v2.2 based on guidance in [Traefik 2.0 + Docker -- a Simple Step by Step Guide](https://medium.com/@containeroo/traefik-2-0-docker-a-simple-step-by-step-guide-e0be0c17cfa5). This project is culmination of several that came before it. Those earlier projects are documented, in chronological order, within the following posts:
 
-  - [My dockerized-server Config](https://dlad.summittdweller.com/en/posts/042-my-dockerized-server-config/)
-  - [Dockerized Traefik Host Using ACME DNS-01 Challenge](https://dlad.summittdweller.com/en/posts/071-dockerized-traefik-using-acme-dns-01/)
-  - [Simplified Testing of Traefik 2 with ACME DNS-01 Challenge](https://dlad.summittdweller.com/en/posts/074-simplified-testing-traefik-2-with-acme-dns-01/)
-  - [Traefik and Acme.sh Instead of DNS-01](https://dlad.summittdweller.com/en/posts/079-traefik-and-acme.sh-instead-of-dns-01/)
+  - [My dockerized-server Config](https://static.grinnell.edu/blogs/McFateM/posts/042-my-dockerized-server-config/)
+  - [Dockerized Traefik Host Using ACME DNS-01 Challenge](https://static.grinnell.edu/blogs/McFateM/posts/071-dockerized-traefik-using-acme-dns-01/)
+  - [Simplified Testing of Traefik 2 with ACME DNS-01 Challenge](https://static.grinnell.edu/blogs/McFateM/posts/074-simplified-testing-traefik-2-with-acme-dns-01/)
+  - [Traefik and Acme.sh Instead of DNS-01](https://static.grinnell.edu/blogs/McFateM/posts/079-traefik-and-acme.sh-instead-of-dns-01/)
 
-Significant portions of this `README.md` file can be found in the capstone to this work, [Host Config: docker-traefik2-acme-host](https://dlad.summittdweller.com/en/posts/080-host-config-docker-traefik2-acme-host/).
+Significant portions of this `README.md` file can be found in the capstone to this work, [Host Config: docker-traefik2-acme-host](https://static.grinnell.edu/blogs/McFateM/posts/080-host-config-docker-traefik2-acme-host/).
 
 ## Stack Contents
 
@@ -18,7 +18,11 @@ This project stack includes the following elements/services:
   - **portainer** - A Portainer instance to provide Docker resource management for this host. Available at: `https://[host]/portainer/`
   - **watchtower** - A WatchTower instance to provide automatic updates of containers from images registered in this stack as they are pushed to DockerHub.
   - **whoami** - A simple WhoAmI instance provided as a sample for typical deployment. Available at: `https://[host]/whoami/`
+  - **landing-page** - In September 2020 this project landed at https://dgdockerx.grinnell.edu where a landing page was added.
 
+```
+Note: As this project was pushed to https://dgdockerx.grinnell.edu I took steps to replace old `administrator@static...` references below with `islandora@dgdockerx...`.
+```
 ## Initial Use
 
 This project is intended to serve as a template for creation and maintenance of an application stack on a Dockerized server or host.  Follow these steps to deploy the project and create a new stack on any Linux (presumably Ubuntu or CentOS) server/host:
@@ -35,8 +39,12 @@ This project is intended to serve as a template for creation and maintenance of 
     - `nano certs.toml`
   - Begin with `acme` and study any `README.md` or server-specific `.md` files there, like `STATIC.md` or `DGDOCKERX.md`.
     - `cd ../acme`
-    - `mdv README.md` # If `mdv` is not available use `cat` and substitute in the server-specifc name as necessary.
-    - Edit files as directed and perform the prescibed command(s).
+    - `mdv README.md` or `mdv DGDOCKER3.md`  _If `mdv` is not available use `cat` and substitute in the server-specifc name as necessary._
+  - Copy any `.env` file needed for this service.  In the case of `acme` it's probably necessary to do this:
+    - `rsync -aruvi islandora@dgdockerx.grinnell.edu:/home/administrator/host/acme/.env . --progress`
+      - For services other than `acme` you will need to change the corresponding portion of the target path.
+    - Verify that `.env` exists, open it and inspect, then change and save the contents if necessary.
+    - Edit other files as directed and perform the prescibed command(s) found in the `README.md` or equivalent.
   - Repeat the above process in each of the remaining directories, preferably in this order:
     - **traefik** - `cd ../traefik`
     - **watchtower** - `cd ../watchtower`
